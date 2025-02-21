@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Intranet CitoLab</title>
+<link rel="icon" href="https://ipemein.edu.pe/huancayo/wp-content/uploads/2024/06/favic-43x43.png" sizes="32x32" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+	<section class="shadow">
+		<div class="container p-3">
+			<div class="row">
+				<div class="col-md-3">
+					<img src="https://ipemein.edu.pe/wp-content/uploads/2024/07/IPEMEIN-plomo.png" class="img-fluid">
+				</div>
+				<div class="col-md-8 d-flex justify-content-center align-items-center"><h2 class="fw-bold text-center" style="color: #0f61ab">INTRANET </h2></div>
+			</div>
+			
+			
+		</div>
+	</section>
+	<div id="app">
+		<section class="container mt-5 " id="app">
+			<div class="d-grid d-lg-flex gap-2 ">
+				<a href="registro-cliente.html"class="btn btn-outline-dark"><i class="bi bi-person-fill"></i> Nuevo alumno</a>
+				<a href="registro-medico.html"class="btn btn-outline-dark"><i class="bi bi-person-video"></i> Usuarios</a>
+				<a href="registro-muestra.html" class="btn btn-outline-dark"><i class="bi bi-asterisk"></i> Registrar certificado</a>
+				<button href="registro-muestra.html" class="btn btn-outline-dark" @click="salir"><i class="bi bi-box-arrow-left"></i> Salir</button>
+			</div>
+
+			<div class="card mt-3">
+				<div class="card-body">
+					<div class="row">
+						<div class="col-12 col-lg-3">
+							<label class="mt-1"><i class="bi bi-funnel"></i> DNI del alumno</label>
+							<input type="text" class="form-control mb-2" autocomplete="off" v-model="filtro.dni">
+						</div>
+						<div class="col-12 col-lg-3">
+							<label class="mt-1"><i class="bi bi-funnel"></i> Usuario</label>
+							<select class="form-select mb-2 text-capitalize" id="sltFiltroMedico" v-model="filtro.medico">
+								<option value="0">Todos</option>
+								<option v-for="medico in medicos" :value="medico.id" class="text-capitalize">{{medico.nombre}}</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mt-2">
+				<div class="col-12 col-lg-3 gap-1 d-flex align-items-end">
+					<button class="btn btn-outline-primary" @click="buscar()"><i class="bi bi-funnel-fill"></i> Filtrar</button>
+					<button class="btn btn-outline-primary" @click="limpiar()"><i class="bi bi-eraser"></i> Limpiar</button>
+				</div>
+			</div>
+
+			<p class="mt-3" v-show="!filtrado">A continuación se presentan los 50 últimos certificados:</p>
+		</section>
+		<section class="container-fluid">
+			<div class="table-responsive">
+				<table class="table table-hover table-bordered">
+					<thead>
+							<th>N°</th>
+							<th>Certificado</th>
+							<th>DNI</th>
+							<th>Nombre del alumno</th>
+							<th>Fecha</th>
+							<th>Médico</th>
+							<th>@</th>
+					</thead>
+					<tbody>
+						<tr v-for="(muestra, index) in muestras">
+							<td>{{index+1}}</td>
+							<td class="text-capitalize">{{muestra.muestra}}</td>
+							<td class="text-capitalize">{{muestra.dni}}</td>
+							<td class="text-capitalize">{{muestra.nombre}}</td>
+							<td>{{fechaLatam(muestra.fecha)}}</td>
+							<td class="text-capitalize">{{muestra.nombreMedico}}</td>
+							<td class="d-grid d-flex gap-2">
+								<button v-if="muestra.estado==1" class="btn btn-sm btn-outline-secondary" title="Cargar PDF" data-bs-toggle="modal" data-bs-target="#modalUpload" @click="indexGlobal=index"><i class="bi bi-upload"></i></button>
+								<a v-if="muestra.estado==2" class="btn btn-sm btn-outline-primary" title="Ver PDF" target="_blank" :href="'./subidas/'+muestra.adjunto"><i class="bi bi-file-earmark-pdf"></i></a>
+								<button class="btn btn-sm btn-outline-danger" title="Anular registro" @click="eliminar(index)"><i class="bi bi-x"></i></button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<!-- Modal -->
+		<div class="modal fade" id="modalUpload" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5 border-0" id="exampleModalLabel">Adjuntar Archivo</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<p>Adjunte el PDF del resultado. Una vez adjunto la muestra pasará a estado finalizado.</p>
+						<input type="file" id="txtArchivo" class="form-control" accept=".pdf" v-model="archivo">
+					</div>
+					<div class="modal-footer border-0">
+						<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" @click="upload"><i class="bi bi-upload"></i> Adjuntar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script>
+		const { createApp, ref, onMounted } = Vue
+	
+		createApp({
+			setup() {
+				const servidor = 'https://ipemein.edu.pe/intranet/api/'
+				const muestras = ref([])
+				const sedes = ref([])
+				const medicos = ref([])
+				const indexGlobal = ref(-1)
+				const archivo = ref(null)
+				const filtrado = ref(false)
+				const filtro = ref({ dni:'', estado:0, sede:0, medico:0 })
+				
+				onMounted(()=>{
+					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
+					else{
+						cargarDatos()
+					}
+				})
+
+				function cargarDatos(){
+					axios.post(servidor+'Sede.php',{
+						pedir:'listar'
+					})
+					.then(response => sedes.value = response.data )
+
+					axios.post(servidor+'Medico.php',{
+						pedir:'listar'
+					})
+					.then(response => medicos.value = response.data )
+
+					axios.post(servidor + 'Muestra.php',{
+						pedir:'listar', nivel: localStorage.getItem('nivel'), idUsuario: localStorage.getItem('idUsuario')
+					}).then(response=> muestras.value = response.data)
+				}
+
+				function eliminar(index){
+					if(confirm(`¿Desea eliminar el registro de ${muestras.value[index].nombre}?`)){
+						axios.post(servidor + 'Muestra.php',{
+							pedir:'eliminar', id: muestras.value[index].id
+						}).then(response=> {
+							if(response.data == 'ok'){
+								cargarDatos()
+								alert('Registro eliminado')
+							}else alert('Hubo un error al eliminar')
+						})
+					}
+				}
+
+				async function upload(){
+					const inputFile = document.querySelector('#txtArchivo')
+					
+					const formData = new FormData();
+    		  formData.append('pdf', inputFile.files[0]);
+    		  formData.append('id', muestras.value[indexGlobal.value].id);
+
+					const response = await axios.post(servidor + 'subidaArchivo.php', formData, {
+						headers: {
+							'Content-Type': 'multipart/form-data'
+						}
+					});
+
+					if(response.data.estado == 'ok'){
+						muestras.value[indexGlobal.value].adjunto=response.data.subida
+						muestras.value[indexGlobal.value].estado=2
+					}else{
+						alert('Hubo problemas en la subida del archivo')
+					}
+		
+					console.log(response.data)
+
+				}
+				function fechaLatam(fecha){
+					if(fecha) return moment(fecha).format('DD/MM/YYYY')
+				}
+
+				function limpiar(){
+					filtro.value = { dni:'', estado:0, sede:0 }
+					cargarDatos()
+				}
+
+				function buscar(){
+					axios.post(servidor + 'Muestra.php',{
+						pedir:'buscarPorFiltros',
+						dni: filtro.value.dni,
+						estado: filtro.value.estado,
+						sede: filtro.value.sede,
+						medico: filtro.value.medico,
+					}).then(response=> muestras.value = response.data)
+				}
+				function salir(){
+					localStorage.removeItem('idUsuario')
+					localStorage.removeItem('nombreUsuario')
+					window.location='index.html'
+				}
+				return {
+					servidor,muestras, fechaLatam, eliminar, indexGlobal, archivo, upload, salir, filtrado, sedes, limpiar, buscar, filtro, medicos
+				}
+			}
+		}).mount('#app')
+	</script>
+
+	<style>
+		thead th{
+			background-color: #0f61ab !important;
+			color: white!important;
+		}
+	</style>
+</body>
+</html>

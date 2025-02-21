@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Intranet CitoLab</title>
+<link rel="icon" href="https://ipemein.edu.pe/huancayo/wp-content/uploads/2024/06/favic-43x43.png" sizes="32x32" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.rtl.min.css"/>
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.rtl.min.css"/>
+</head>
+<body>
+	<section class="container my-5 " id="app">
+		<button class="btn btn-outline-primary" onclick="history.back()"><i class="bi bi-arrow-left"></i> Volver</button>
+		<h1 class="text-center">Registro de médicos y empresas</h1>
+
+		<div class="row">
+			<div class="col-12 col-lg-7 mx-auto">
+				<div class="card">
+					<div class="card-body">
+						<label for="nombre-paciente" class="form-label mt-3">Tipo de persona / entidad <span class="text-danger"> *</span></label>
+						<select class="form-select" id="sltEntiedad" v-model="sede.entidad">
+							<option value='0'>Personal médico</option>
+							<option value='1'>Entidad</option>
+						</select>
+						<label for="nombre-paciente" class="form-label mt-3">
+							<span v-if="sede.entidad==0">D.N.I.</span> 
+							<span v-if="sede.entidad==1">R.U.C.</span> 
+							<span class="text-danger"> *</span>
+						</label>
+						<input type="text" id="nombre-paciente" class="form-control" v-model="sede.dni" autocomplete="off">
+						<label for="nombre-paciente" class="form-label mt-3">
+							<span v-if="sede.entidad==0">Apellidos y nombres</span>
+							<span v-if="sede.entidad==1">Razón social</span>
+							<span class="text-danger"> *</span>
+						</label>
+						<input type="text" id="nombre-paciente" class="form-control" v-model="sede.sede" autocomplete="off">
+
+						<div class="d-grid">
+							<button class="btn btn-outline-primary btn-lg my-3" @click="crear()"><i class="bi bi-floppy2-fill"></i>  
+								<span v-if="sede.entidad==0"> Crear médico</span>
+								<span v-if="sede.entidad==1"> Crear empresa</span>
+						</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<table class="table table-hover">
+					<thead>
+						<th>N°</th>
+						<th>Nombre</th>
+						<th>DNI - RUC</th>
+						<th>Tipo</th>
+						<th>@</th>
+					</thead>
+					<tbody>
+						<tr v-for="(medico, index) in medicos">
+							<td>{{index+1}}</td>
+							<td>{{medico.nombre}}</td>
+							<td>{{medico.dni}}</td>
+							<td>
+								<span v-if="medico.esEmpresa==0">Médico</span>
+								<span v-else>Entidad</span>
+							</td>
+							<td v-if="medico.id!=1">
+								<button v-if="!medico.idUsuario" class="btn btn-sm btn-outline-success" title="Crear usuario" @click="crearUsuario(index)"><i class="bi bi-person-check"></i></button>
+								<button v-else class="btn btn-sm btn-outline-primary" title="Asignar contraseña" @click="cambiarClave(index)"><i class="bi bi-key"></i></button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</section>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+
+	<script>
+		const { createApp, ref, onMounted } = Vue
+	
+		const app = createApp({
+			setup() {
+				const servidor = 'https://ipemein.edu.pe/intranet/api/'
+				const sede = ref({
+					sede:'', entidad:0, dni:''
+				})
+				const medicos = ref([])
+
+				function crear(){
+					if(!sede.value.dni || !sede.value.sede) alert('Todos los campos son obligatorios')
+					else{
+						axios.post(servidor+'Medico.php',{
+							pedir:'crear', sede: sede.value
+						})
+						.then(response =>{
+							if( response.data.id > 0 )
+								alert(`${sede.value.sede}. Creado con éxito`)
+								window.location = 'intranet.html'
+						})
+					}
+				}
+				
+				function crearUsuario(index){
+					alertify.prompt( 'Crear usuario', 'A continuación se creará el usuario para el usuario: ' + medicos.value[index].dni + " <br>Ingrese una contraseña para que pueda acceder al sistema", ""
+					, function(evt, value){
+						axios.post(servidor+'Medico.php',{
+						pedir: 'crearUsuario', medico: medicos.value[index], clave: value
+						})
+						.then(response=>{
+							if(response.data.id){
+								medicos.value[index].idUsuario=response.data.id
+								console.log(medicos.value[index])
+							}
+						})
+					}
+					, function() { /*Cancelado*/ });
+				}
+
+				function cambiarClave(index){
+					alertify.prompt( 'Cambiar clave', 'Asigne una nueva clave para el usuario: ' + medicos.value[index].dni , ""
+					, function(evt, value){
+						if(value=='') alert('La clave no puede estar vacía')
+						else{
+							axios.post(servidor+'Medico.php',{
+							pedir: 'cambiarClave', id: medicos.value[index].idUsuario, clave: value
+							})
+							.then(response=> alert('Clave cambiada con éxito'))
+						}
+					}
+					, function() { /*Cancelado*/ });
+				}
+
+				onMounted(()=>{
+					if(!localStorage.getItem('idUsuario')) window.location = 'index.html'
+					else{
+						axios.post(servidor+'Medico.php',{
+							pedir: 'listar'
+						}).then(response =>{
+							medicos.value = response.data
+						})
+					}
+				})
+				return {
+					sede, medicos,
+					servidor, crear, crearUsuario, cambiarClave
+				}
+			}
+		}).mount('#app')
+	</script>
+</body>
+</html>
