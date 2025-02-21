@@ -16,17 +16,12 @@
 <body>
 	<section class="container my-5 " id="app">
 		<button class="btn btn-outline-primary" onclick="history.back()"><i class="bi bi-arrow-left"></i> Volver</button>
-		<h1 class="text-center">Registro de médicos y empresas</h1>
+		<h1 class="text-center">Registro de usuarios</h1>
 
 		<div class="row">
 			<div class="col-12 col-lg-7 mx-auto">
 				<div class="card">
 					<div class="card-body">
-						<label for="nombre-paciente" class="form-label mt-3">Tipo de persona / entidad <span class="text-danger"> *</span></label>
-						<select class="form-select" id="sltEntiedad" v-model="sede.entidad">
-							<option value='0'>Personal médico</option>
-							<option value='1'>Entidad</option>
-						</select>
 						<label for="nombre-paciente" class="form-label mt-3">
 							<span v-if="sede.entidad==0">D.N.I.</span> 
 							<span v-if="sede.entidad==1">R.U.C.</span> 
@@ -34,16 +29,14 @@
 						</label>
 						<input type="text" id="nombre-paciente" class="form-control" v-model="sede.dni" autocomplete="off">
 						<label for="nombre-paciente" class="form-label mt-3">
-							<span v-if="sede.entidad==0">Apellidos y nombres</span>
-							<span v-if="sede.entidad==1">Razón social</span>
+							<span>Apellidos y nombres</span>
 							<span class="text-danger"> *</span>
 						</label>
 						<input type="text" id="nombre-paciente" class="form-control" v-model="sede.sede" autocomplete="off">
 
 						<div class="d-grid">
 							<button class="btn btn-outline-primary btn-lg my-3" @click="crear()"><i class="bi bi-floppy2-fill"></i>  
-								<span v-if="sede.entidad==0"> Crear médico</span>
-								<span v-if="sede.entidad==1"> Crear empresa</span>
+								<span> Crear usuario</span>
 						</button>
 						</div>
 					</div>
@@ -58,7 +51,6 @@
 						<th>N°</th>
 						<th>Nombre</th>
 						<th>DNI - RUC</th>
-						<th>Tipo</th>
 						<th>@</th>
 					</thead>
 					<tbody>
@@ -66,10 +58,6 @@
 							<td>{{index+1}}</td>
 							<td>{{medico.nombre}}</td>
 							<td>{{medico.dni}}</td>
-							<td>
-								<span v-if="medico.esEmpresa==0">Médico</span>
-								<span v-else>Entidad</span>
-							</td>
 							<td v-if="medico.id!=1">
 								<button v-if="!medico.idUsuario" class="btn btn-sm btn-outline-success" title="Crear usuario" @click="crearUsuario(index)"><i class="bi bi-person-check"></i></button>
 								<button v-else class="btn btn-sm btn-outline-primary" title="Asignar contraseña" @click="cambiarClave(index)"><i class="bi bi-key"></i></button>

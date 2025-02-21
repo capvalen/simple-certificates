@@ -27,9 +27,10 @@
 	<div id="app">
 		<section class="container mt-5 " id="app">
 			<div class="d-grid d-lg-flex gap-2 ">
-				<a href="registro-cliente.html"class="btn btn-outline-dark"><i class="bi bi-person-fill"></i> Nuevo alumno</a>
+				<a href="registro-cliente.html"class="btn btn-outline-dark"><i class="bi bi-person-fill"></i> Alumnos</a>
 				<a href="registro-medico.html"class="btn btn-outline-dark"><i class="bi bi-person-video"></i> Usuarios</a>
-				<a href="registro-muestra.html" class="btn btn-outline-dark"><i class="bi bi-asterisk"></i> Registrar certificado</a>
+				<a href="registro-medico.html"class="btn btn-outline-dark"><i class="bi bi-bookmark-star"></i> Certificados</a>
+				<a href="registro-muestra.html" class="btn btn-outline-dark"><i class="bi bi-asterisk"></i> Asociar certificado</a>
 				<button href="registro-muestra.html" class="btn btn-outline-dark" @click="salir"><i class="bi bi-box-arrow-left"></i> Salir</button>
 			</div>
 
@@ -37,8 +38,12 @@
 				<div class="card-body">
 					<div class="row">
 						<div class="col-12 col-lg-3">
-							<label class="mt-1"><i class="bi bi-funnel"></i> DNI del alumno</label>
+							<label class="mt-1"><i class="bi bi-funnel"></i> DNI o Nombres del alumno</label>
 							<input type="text" class="form-control mb-2" autocomplete="off" v-model="filtro.dni">
+						</div>
+						<div class="col-12 col-lg-3">
+							<label class="mt-1"><i class="bi bi-funnel"></i> Certificado</label>
+							<input type="text" class="form-control mb-2" autocomplete="off" >
 						</div>
 						<div class="col-12 col-lg-3">
 							<label class="mt-1"><i class="bi bi-funnel"></i> Usuario</label>
@@ -68,7 +73,6 @@
 							<th>DNI</th>
 							<th>Nombre del alumno</th>
 							<th>Fecha</th>
-							<th>Médico</th>
 							<th>@</th>
 					</thead>
 					<tbody>
@@ -78,7 +82,6 @@
 							<td class="text-capitalize">{{muestra.dni}}</td>
 							<td class="text-capitalize">{{muestra.nombre}}</td>
 							<td>{{fechaLatam(muestra.fecha)}}</td>
-							<td class="text-capitalize">{{muestra.nombreMedico}}</td>
 							<td class="d-grid d-flex gap-2">
 								<button v-if="muestra.estado==1" class="btn btn-sm btn-outline-secondary" title="Cargar PDF" data-bs-toggle="modal" data-bs-target="#modalUpload" @click="indexGlobal=index"><i class="bi bi-upload"></i></button>
 								<a v-if="muestra.estado==2" class="btn btn-sm btn-outline-primary" title="Ver PDF" target="_blank" :href="'./subidas/'+muestra.adjunto"><i class="bi bi-file-earmark-pdf"></i></a>

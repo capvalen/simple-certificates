@@ -7,6 +7,7 @@ switch ($data['pedir']) {
 	case 'crear': crear($datab, $data); break;
 	case 'buscarDNI': buscarDNI($datab, $data); break;
 	case 'listar': listar($datab, $data); break;
+	case 'listarActivos': listarActivos($datab); break;
 	case 'listarID': listarID($datab, $data); break;
 	case 'registrarMuestra': registrarMuestra($datab, $data); break;
 	default:
@@ -37,6 +38,15 @@ function listar($db, $data){
 	$sql->execute([$data['cliente']['dni']]);
 	$row= $sql->fetch(PDO::FETCH_ASSOC);
 		$filas = $row;
+	echo json_encode($filas);
+}
+
+function listarActivos($db){
+	$filas = [];
+	$sql= $db->prepare("SELECT * FROM `clientes` where activo=1 limit 50");
+	$sql->execute();
+	while($row= $sql->fetch(PDO::FETCH_ASSOC))
+		$filas []= $row;
 	echo json_encode($filas);
 }
 
