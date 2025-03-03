@@ -10,6 +10,7 @@ switch ($data['pedir']) {
 	case 'listarActivos': listarActivos($datab); break;
 	case 'listarID': listarID($datab, $data); break;
 	case 'registrarMuestra': registrarMuestra($datab, $data); break;
+	case 'eliminar': eliminar($datab, $data); break;
 	default:
 		# code...
 		break;
@@ -43,10 +44,16 @@ function listar($db, $data){
 
 function listarActivos($db){
 	$filas = [];
-	$sql= $db->prepare("SELECT * FROM `clientes` where activo=1 limit 50");
+	$sql= $db->prepare("SELECT * FROM `clientes` where activo=1 order by id desc limit 50");
 	$sql->execute();
 	while($row= $sql->fetch(PDO::FETCH_ASSOC))
 		$filas []= $row;
+	foreach($filas as &$alumno){
+		$sqlCursos = $db->prepare("SELECT count(*) as conteo from muestras where activo = 1 and idCliente = ?;");
+		$sqlCursos->execute([$alumno['id']]);
+		$rowCursos = $sqlCursos->fetch(PDO::FETCH_ASSOC);
+		$alumno['conteo'] = $rowCursos['conteo'];
+	}
 	echo json_encode($filas);
 }
 
@@ -59,17 +66,17 @@ function crear($db, $data){
 	$cliente = $data['cliente'];
 	if( $aRespuesta == 0 ){
 		//Crear al cliente
-		$sql = $db->prepare("INSERT INTO `clientes`(`dni`, `nombre`, `historia`, `edad`) VALUES (?, ?, ?, ?)");
-		$sent = $sql->execute([ $cliente['dni'], $cliente['nombre'], $cliente['historia'], $cliente['edad'] ]);
+		$sql = $db->prepare("INSERT INTO `clientes`(`dni`, `nombre`) VALUES (?, ?)");
+		$sent = $sql->execute([ $cliente['dni'], $cliente['nombre'] ]);
 		if($sent) $idCliente = $db->lastInsertId();
 		else $idCliente = 1;
 	}else{
 		//el cliente ya esta creado
 		$idCliente = $aRespuesta['id'];
 		$sql = $db->prepare("UPDATE `clientes` set
-		`dni` = ?, `nombre` = ?, `historia` = ?, `edad` = ?
+		`dni` = ?, `nombre` = ?
 		where id = ?");
-		$sent = $sql->execute([ $cliente['dni'], $cliente['nombre'], $cliente['historia'], $cliente['edad'], $idCliente ]);
+		$sent = $sql->execute([ $cliente['dni'], $cliente['nombre'], $idCliente ]);
 	}
 
 	echo json_encode( array('idCliente' => $idCliente));
@@ -85,14 +92,21 @@ function registrarMuestra($db, $data){
 	$idMuestra=-1;
 	$muestra = $data['muestra'];
 
-	$sql = $db->prepare("INSERT INTO `muestras`(`idCliente`, `fecha`, `codigo`, `idMedico`, `muestra`, `idSede`) VALUES (?,?,?,?,?,?)");
+	$sql = $db->prepare("INSERT INTO `muestras`(`idCliente`, `idCurso`, `fecha`, `codigo`) VALUES (?,?,?,?)");
 	$sent = $sql->execute([
-		$idCliente, $muestra['fecha'],$muestra['codigo'],$muestra['medico'],$muestra['muestra'], $muestra['sede']
+		$idCliente, $muestra['id'], $muestra['fecha'],$muestra['codigo']
 	]);
 
 	if($sent) $idMuestra = $db->lastInsertId();
 
 	echo json_encode( array('idMuestra' => $idMuestra));
-
 }
+
+function eliminar($db, $data){
+	$sql = $db->prepare("UPDATE `clientes` set activo=0 where id = ? ");
+	$sent = $sql->execute([ $data['id'] ]);
+	if($sent) echo 'ok';
+	else echo 'error';
+}
+
 ?>

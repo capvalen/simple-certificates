@@ -17,18 +17,17 @@ switch ($data['pedir']) {
 function listar($db, $data){
 	$filas = [];
 	if($data['nivel']=='3'){
-		$sql= $db->prepare("SELECT m.*, c.dni, c.nombre, s.sede, me.nombre as nombreMedico FROM `muestras` m
-		inner join clientes c on c.id = m.idCliente
-		inner join sedes s on s.id = m.idSede
-		inner join medicos me on me.id = m.idMedico
-		inner join usuarios u on u.usuNombre = me.dni
+		$sql= $db->prepare("SELECT m.*, c.dni, c.nombre, cu.nombre as curso, cu.fecha as fechaCurso FROM `muestras` m
+			inner join clientes c on c.id = m.idCliente
+			inner join cursos cu on cu.id = m.idCurso		
+			inner join usuarios u on u.usuNombre = me.dni
+			where m.activo = 1 order by m.id desc;
 		where m.activo = 1 and u.idUsuario = {$data['idUsuario']} order by m.id desc;");
 	}else{
-		$sql= $db->prepare("SELECT m.*, c.dni, c.nombre, s.sede, me.nombre as nombreMedico FROM `muestras` m
-		inner join clientes c on c.id = m.idCliente
-		inner join sedes s on s.id = m.idSede
-		inner join medicos me on me.id = m.idMedico
-		where m.activo = 1 order by m.id desc");
+		$sql= $db->prepare("SELECT m.*, c.dni, c.nombre, cu.nombre as curso, cu.fecha as fechaCurso FROM `muestras` m
+			inner join clientes c on c.id = m.idCliente
+			inner join cursos cu on cu.id = m.idCurso	
+		where m.activo = 1 order by m.id desc;");
 	}
 	
 	$sql->execute();
@@ -42,14 +41,12 @@ function buscarPorFiltros($db, $data){
 	$filtro = '';
 	if($data['dni']) $filtro = " c.dni = '{$data['dni']}' and ";
 	if($data['estado']) $filtro .= " m.estado = {$data['estado']} and ";
-	if($data['sede'] && $data['sede']<>0) $filtro .= " m.idSede = {$data['sede']} and ";
-	if($data['medico'] && $data['medico']<>0) $filtro .= " m.idMedico = {$data['medico']} and ";
+	if($data['certificado']) $filtro .= " cu.nombre like '%{$data['certificado']}%' and ";
 	//echo $filtro; die();
-	$sql= $db->prepare("SELECT m.*, c.nombre, s.sede, me.nombre as nombreMedico FROM `muestras` m
-	inner join clientes c on c.id = m.idCliente
-	inner join sedes s on s.id = m.idSede
-	inner join medicos me on me.id = m.idMedico
-	where {$filtro} m.activo = 1");
+	$sql= $db->prepare("SELECT m.*, c.nombre, cu.nombre as curso, cu.fecha as fechaCurso FROM `muestras` m
+		inner join clientes c on c.id = m.idCliente
+    inner join cursos cu on cu.id = m.idCurso
+	where {$filtro} m.activo = 1 order by m.id desc");
 	$sql->execute();
 	while($row= $sql->fetch(PDO::FETCH_ASSOC))
 		$filas [] = $row;
@@ -67,11 +64,10 @@ function registrosDNI($db, $data){
 	if($data['dni']) $filtro = " c.dni = '{$data['dni']}' and ";
 	else die();
 	//echo $filtro; die();
-	$sql= $db->prepare("SELECT m.*, c.nombre, c.dni, c.edad, s.sede, me.nombre as nombreMedico FROM `muestras` m
-	inner join clientes c on c.id = m.idCliente
-	inner join sedes s on s.id = m.idSede
-	inner join medicos me on me.id = m.idMedico
-	where {$filtro} m.activo = 1");
+	$sql= $db->prepare("SELECT m.*, c.nombre, cu.nombre as curso, cu.fecha as fechaCurso FROM `muestras` m
+		inner join clientes c on c.id = m.idCliente
+    inner join cursos cu on cu.id = m.idCurso
+	where {$filtro} m.activo = 1 order by cu.fecha desc");
 	$sql->execute();
 	while($row= $sql->fetch(PDO::FETCH_ASSOC))
 		$filas [] = $row;

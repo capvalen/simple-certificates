@@ -3,8 +3,10 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Intranet CitoLab</title>
-<link rel="icon" href="https://ipemein.edu.pe/huancayo/wp-content/uploads/2024/06/favic-43x43.png" sizes="32x32" />
+	<title>Intranet IPEMEIN</title>
+	<link rel="icon" href="imgs/favicon.png" type="image/x-icon">
+
+<link rel="icon" href="http://localhost/simple-certificates/huancayo/wp-content/uploads/2024/06/favic-43x43.png" sizes="32x32" />
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -35,6 +37,33 @@
 			</div>
 		</div>
 
+		<div class="row col-12">
+			<p>Alumnos registrados:</p>
+			<table class="table table-hover">
+				<thead>
+					<th>N°</th>
+					<th>DNI</th>
+					<th>Apellidos y nombres</th>
+					<th>N° cursos</th>
+					<th>@</th>
+				</thead>
+				<tbody>
+					<tr v-for="(estudiante, index) in alumnos">
+						<td>{{index+1}}</td>
+						<td>{{estudiante.dni}}</td>
+						<td>{{estudiante.nombre.toUpperCase()}}</td>
+						<td>{{estudiante.conteo}}</td>
+						<td>
+							<div class="d-grid gap-2 d-md-block">
+								<button class="btn btn-outline-primary btn-sm me-1" title="Ver certificados"><i class="bi bi-star"></i></button>
+								<button class="btn btn-outline-danger btn-sm me-1" title="Borrar alumno" @click="eliminar(index)"><i class="bi bi-x-circle"></i></button>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
 	</section>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
@@ -43,7 +72,7 @@
 	
 		createApp({
 			setup() {
-				const servidor = 'https://ipemein.edu.pe/intranet/api/'
+				const servidor = 'http://localhost/simple-certificates/api/'
 				const cliente = {
 					dni:'', nombre:'', historia:'', edad:0, fecha:moment().format('YYYY-MM-DD'), muestra:'', codigo:''
 				}
@@ -71,9 +100,22 @@
 						pedirDatos()
 					}
 				})
+
+				function eliminar(index){
+					if(confirm(`¿Desea eliminar al alumno ${alumnos.value[index].nombre}?`)){
+						axios.post(servidor+'Cliente.php',{
+						pedir:'eliminar', id: alumnos.value[index].id
+						}).then(resp =>{
+							if(resp.data == 'ok')
+								alumnos.value.splice(index,1)
+							else alert('Hubo un error')
+						})
+					}
+				}
+
 				return {
 					cliente, pedirDatos,
-					servidor, crear, alumnos
+					servidor, crear, alumnos, eliminar
 				}
 			}
 		}).mount('#app')

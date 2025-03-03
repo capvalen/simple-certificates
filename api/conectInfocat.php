@@ -2,7 +2,7 @@
 	$server="localhost";
 	$username="root";
 	$password="*123456*";
-	$db='citolab';
+	$db='simple-certificado';
 	$conection= mysqli_connect($server,$username,$password)or die("No se ha podido establecer la conexion");
 	$sdb= mysqli_select_db($conection,$db)or die("La base de datos no existe");
 	$conection->set_charset("utf8");
@@ -23,5 +23,9 @@
 		echo "Problema con la conexion: ".$e->getMessage();
 	}
 
+	/*servidores
+	https://ipemein.edu.pe/intranet
+	http://localhost/simple-certificates/
+	*/
 	
 ?>
