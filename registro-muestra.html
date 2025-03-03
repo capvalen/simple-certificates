@@ -61,7 +61,7 @@
 					<tbody>
 						<tr v-for="(certificado, index) in certificados">
 							<td>{{index+1}}</td>
-							<td>{{certificado.certificado}}</td>
+							<td>{{certificado.curso}}</td>
 							<td>{{certificado.dni}}</td>
 							<td>{{certificado.nombre}}</td>
 							<td>{{certificado.fecha}}</td>
@@ -142,7 +142,7 @@
 							});
 						})
 						axios.post(servidor+'Muestra.php',{
-							pedir:'buscarPorFiltros', dni:'', estado:'', sede:'', medico:''
+							pedir:'buscarPorFiltros', dni:'', estado:'', sede:'', medico:'', certificado: null
 						})
 						.then(response=> certificados.value = response.data )
 

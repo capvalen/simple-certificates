@@ -17,13 +17,13 @@
 <body>
 	<section class="shadow">
 		<div class="container d-lg-flex align-items-center justify-content-center p-3">
-			<div class="row col-6"><img src="http://localhost/simple-certificates/imgs/logo.png" class="img-fluid"></div>
+			<div class="row col-6 col-md-4"><img src="http://localhost/simple-certificates/imgs/logo.png" class="img-fluid"></div>
 			<h1></h1>
 		</div>
 	</section>
 	<div id="app">
 		<section class="container my-5 ">
-			<h2 class="fw-bold text-center" style="color: #ff1a1a"><i class="bi bi-clipboard2-pulse"></i>INTRANET</h2>
+			<h2 class="fw-bold text-center" style="color: #ff1a1a"><i class="bi bi-clipboard2-pulse"></i> VALIDACIÓN DE DIPLOMAS</h2>
 			<div class="card w-100">
 				<div class="card-body row">
 					<div class="col-md-6 col-lg-5 p-3">
@@ -61,30 +61,32 @@
 							<p><span class="fw-bold">DNI:</span> <span>{{cliente.dni}}</span></p>
 							<p><span class="fw-bold">Paciente:</span> <span>{{cliente.nombre}}</span></p>
 							<p>Tiene <span class="fw-bold">{{muestras.length}} certificado{{muestras.length==1?'':'s'}}</span> registrado{{muestras.length==1?'':'s'}}:</p>
-							<table class="table table-hover">
-								<thead>
-									<th>N°</th>
-									<th>Fecha</th>
-									<th>Certificado</th>
-									<th>Documento</th>
-								</thead>
-								<tbody>
-									<tr v-for="(muestra, index) in muestras">
-										<td>{{index+1}}</td>
-										<td>{{fechaLatam(muestra.fechaCurso)}}</td>
-										<td class="text-capitalize">{{muestra.curso}}</td>
-										<td>
-											<span class="text-danger" v-if="muestra.estado==1"><i class="bi bi-alarm"></i> Pendiente</span>
-											<div v-if="muestra.estado==2">
-												<a v-if="muestra.estado==2" class="btn btn-sm btn-outline-danger" title="Ver PDF" target="_blank" :href="'./subidas/'+muestra.adjunto"><i class="bi bi-file-earmark-pdf"></i> Ver PDF</a>
-											</div>
-										</td>
-										<td>
-											
-										</td>
-									</tr>
-								</tbody>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover">
+									<thead>
+										<th>N°</th>
+										<th>Fecha</th>
+										<th>Certificado</th>
+										<th>Documento</th>
+									</thead>
+									<tbody>
+										<tr v-for="(muestra, index) in muestras">
+											<td>{{index+1}}</td>
+											<td>{{fechaLatam(muestra.fechaCurso)}}</td>
+											<td class="text-capitalize">{{muestra.curso}}</td>
+											<td>
+												<span class="text-danger" v-if="muestra.estado==1"><i class="bi bi-alarm"></i> Pendiente</span>
+												<div v-if="muestra.estado==2">
+													<a v-if="muestra.estado==2" class="btn btn-sm btn-outline-danger" title="Ver PDF" target="_blank" :href="'./subidas/'+muestra.adjunto"><i class="bi bi-file-earmark-pdf"></i> Ver PDF</a>
+												</div>
+											</td>
+											<td>
+								
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>

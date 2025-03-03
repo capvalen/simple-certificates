@@ -83,7 +83,8 @@
 						pedir:'crear', cliente
 					})
 					.then(response =>{
-						if( response.data.idCliente > 0 ) window.location = 'perfil-cliente.html?idCliente='+response.data.idCliente
+						if( response.data.idCliente > 0 ) //window.location = 'perfil-cliente.html?idCliente='+response.data.idCliente
+							location.reload()
 					})
 				}
 

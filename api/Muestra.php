@@ -43,7 +43,7 @@ function buscarPorFiltros($db, $data){
 	if($data['estado']) $filtro .= " m.estado = {$data['estado']} and ";
 	if($data['certificado']) $filtro .= " cu.nombre like '%{$data['certificado']}%' and ";
 	//echo $filtro; die();
-	$sql= $db->prepare("SELECT m.*, c.nombre, cu.nombre as curso, cu.fecha as fechaCurso FROM `muestras` m
+	$sql= $db->prepare("SELECT m.*, c.dni, c.nombre, cu.nombre as curso, cu.fecha as fechaCurso FROM `muestras` m
 		inner join clientes c on c.id = m.idCliente
     inner join cursos cu on cu.id = m.idCurso
 	where {$filtro} m.activo = 1 order by m.id desc");
