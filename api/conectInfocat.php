@@ -25,7 +25,7 @@
 
 	/*servidores
 	https://ipemein.edu.pe/intranet
-	http://localhost/simple-certificates/
+	http://localhost/simple-certificates
 	*/
 	
 ?>

@@ -30,12 +30,18 @@ function crear($db, $data){
 	$sql = $db->prepare("INSERT INTO `medicos`(`nombre`, `dni`, `esEmpresa`) VALUES (?, ?, ?)");
 	$sent = $sql->execute([ $data['sede']['sede'], $data['sede']['dni'], $data['sede']['entidad'] ]);
 	if($sent) $id = $db->lastInsertId();
+
+	ob_start();
+	$data['id'] = $id;
+	$data['clave']=$data['sede']['clave'];
+	crearUsuario($db, $data);	
+	ob_clean();
 	echo json_encode( array('id' => $id));
 }
 
 function crearUsuario($db, $data){
 	$sql = $db->prepare("INSERT INTO `usuarios`(`usuNombre`, `usuPass`, `usuActivo`, `usuPoder`) VALUES (?, MD5(?), ?, ?)");
-	$sent = $sql->execute([ $data['medico']['dni'], $data['clave'], 1, 3 ]);
+	$sent = $sql->execute([ $data['medico']['dni'], $data['clave'], 1, 1 ]);
 	if($sent) $id = $db->lastInsertId();
 	echo json_encode( array('id' => $id));
 }
